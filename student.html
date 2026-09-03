@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بيانات الطالب - المتابعة الشهرية</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #e9ecef; margin: 0; padding: 20px; }
+        .card { max-width: 500px; margin: 30px auto; background: #fff; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .header { text-align: center; border-bottom: 2px solid #1a73e8; padding-bottom: 10px; margin-bottom: 20px; }
+        .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; font-size: 16px; }
+        .label { font-weight: bold; color: #555; }
+        .value { color: #1a73e8; font-weight: bold; }
+        .badge { padding: 4px 10px; border-radius: 4px; color: white; font-weight: bold; }
+        .paid { background-color: #28a745; }
+        .unpaid { background-color: #dc3545; }
+        .dates-list { font-size: 14px; color: #666; margin-top: 8px; text-align: right; line-height: 1.6; }
+    </style>
+</head>
+<body>
+
+<div class="card" id="student-card">
+    <div class="header">
+        <h2 id="st-name">جاري تحميل البيانات...</h2>
+        <p>كود الطالب: <span id="st-code">-</span></p>
+    </div>
+
+    <div class="info-row">
+        <span class="label">عدد الحصص الحاضرة:</span>
+        <span class="value" id="st-attendance">0</span>
+    </div>
+
+    <div class="info-row">
+        <span class="label">درجة الامتحان الشهري:</span>
+        <span class="value" id="st-exam">-</span>
+    </div>
+
+    <div class="info-row">
+        <span class="label">حالة المصاريف الشهرية:</span>
+        <span id="st-status" class="badge unpaid">غير معروف</span>
+    </div>
+
+    <div style="margin-top: 15px;">
+        <span class="label">تواريخ الحضور المسجلة:</span>
+        <div id="st-dates" class="dates-list">لا يوجد حضور مسجل بعد</div>
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyD6UDuCBns0_zdWOhnLOX3OtKelHs3hGmc",
+        authDomain: "altafawuk-center.firebaseapp.com",
+        databaseURL: "https://altafawuk-center-default-rtdb.firebaseio.com",
+        projectId: "altafawuk-center",
+        storageBucket: "altafawuk-center.firebasestorage.app",
+        messagingSenderId: "499180495752",
+        appId: "1:499180495752:web:6f2e72fb4e87f8becc103d"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const studentCode = urlParams.get('code');
+
+    if (studentCode) {
+        database.ref('students/' + studentCode).on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                document.getElementById('st-name').innerText = data.name;
+                document.getElementById('st-code').innerText = data.code;
+                document.getElementById('st-attendance').innerText = data.attendanceCount || 0;
+                document.getElementById('st-exam').innerText = data.examScore || 'لم تحدد بعد';
+                
+                const statusElem = document.getElementById('st-status');
+                if (data.isPaid) {
+                    statusElem.innerText = 'تم السداد ✅';
+                    statusElem.className = 'badge paid';
+                } else {
+                    statusElem.innerText = 'لم يتم السداد ❌';
+                    statusElem.className = 'badge unpaid';
+                }
+
+                if (data.attendanceDates && data.attendanceDates.length > 0) {
+                    document.getElementById('st-dates').innerText = data.attendanceDates.join(' | ');
+                }
+            } else {
+                document.getElementById('student-card').innerHTML = "<h3 style='color:red; text-align:center;'>عفواً، بيانات هذا الطالب غير موجودة!</h3>";
+            }
+        });
+    } else {
+        document.getElementById('student-card').innerHTML = "<h3 style='color:red; text-align:center;'>رابط غير صحيح، برجاء التأكد من الكود!</h3>";
+    }
+</script>
+</body>
+</html>
