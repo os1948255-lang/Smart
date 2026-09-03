@@ -1,0 +1,272 @@
+<p>
+    &lt;!DOCTYPE html&gt;
+</p>
+<p>
+    &lt;html lang="ar" dir="rtl"&gt;
+</p>
+<p>
+    &lt;head&gt;
+</p>
+<p>
+        &lt;meta charset="UTF-8"&gt;
+</p>
+<p>
+        &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+</p>
+<p>
+        &lt;title&gt;بيانات الطالب - المتابعة الشهرية&lt;/title&gt;
+</p>
+<p>
+        &lt;!-- Firebase SDKs --&gt;
+</p>
+<p>
+        &lt;script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"&gt;&lt;/script&gt;
+</p>
+<p>
+        &lt;script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"&gt;&lt;/script&gt;
+</p>
+<p>
+        &lt;style&gt;
+</p>
+<p>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #e9ecef; margin: 0; padding: 20px; }
+</p>
+<p>
+            .card { max-width: 500px; margin: 30px auto; background: #fff; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+</p>
+<p>
+            .header { text-align: center; border-bottom: 2px solid #1a73e8; padding-bottom: 10px; margin-bottom: 20px; }
+</p>
+<p>
+            .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; font-size: 16px; }
+</p>
+<p>
+            .label { font-weight: bold; color: #555; }
+</p>
+<p>
+            .value { color: #1a73e8; font-weight: bold; }
+</p>
+<p>
+            .badge { padding: 4px 10px; border-radius: 4px; color: white; font-weight: bold; }
+</p>
+<p>
+            .paid { background-color: #28a745; }
+</p>
+<p>
+            .unpaid { background-color: #dc3545; }
+</p>
+<p>
+            .dates-list { font-size: 14px; color: #666; margin-top: 8px; text-align: right; line-height: 1.6; }
+</p>
+<p>
+        &lt;/style&gt;
+</p>
+<p>
+    &lt;/head&gt;
+</p>
+<p>
+    &lt;body&gt;
+</p>
+<p>
+    &lt;div class="card" id="student-card"&gt;
+</p>
+<p>
+        &lt;div class="header"&gt;
+</p>
+<p>
+            &lt;h2 id="st-name"&gt;جاري تحميل البيانات...&lt;/h2&gt;
+</p>
+<p>
+            &lt;p&gt;كود الطالب: &lt;span id="st-code"&gt;-&lt;/span&gt;&lt;/p&gt;
+</p>
+<p>
+        &lt;/div&gt;
+</p>
+<p>
+        &lt;div class="info-row"&gt;
+</p>
+<p>
+            &lt;span class="label"&gt;عدد الحصص الحاضرة:&lt;/span&gt;
+</p>
+<p>
+            &lt;span class="value" id="st-attendance"&gt;0&lt;/span&gt;
+</p>
+<p>
+        &lt;/div&gt;
+</p>
+<p>
+        &lt;div class="info-row"&gt;
+</p>
+<p>
+            &lt;span class="label"&gt;درجة الامتحان الشهري:&lt;/span&gt;
+</p>
+<p>
+            &lt;span class="value" id="st-exam"&gt;-&lt;/span&gt;
+</p>
+<p>
+        &lt;/div&gt;
+</p>
+<p>
+        &lt;div class="info-row"&gt;
+</p>
+<p>
+            &lt;span class="label"&gt;حالة المصاريف الشهرية:&lt;/span&gt;
+</p>
+<p>
+            &lt;span id="st-status" class="badge unpaid"&gt;غير معروف&lt;/span&gt;
+</p>
+<p>
+        &lt;/div&gt;
+</p>
+<p>
+        &lt;div style="margin-top: 15px;"&gt;
+</p>
+<p>
+            &lt;span class="label"&gt;تواريخ الحضور المسجلة:&lt;/span&gt;
+</p>
+<p>
+            &lt;div id="st-dates" class="dates-list"&gt;لا يوجد حضور مسجل بعد&lt;/div&gt;
+</p>
+<p>
+        &lt;/div&gt;
+</p>
+<p>
+    &lt;/div&gt;
+</p>
+<p>
+    &lt;script&gt;
+</p>
+<p>
+        // إعدادات Firebase الخاصة بمركز التفوق (مربوطة تلقائياً)
+</p>
+<p>
+        const firebaseConfig = {
+</p>
+<p>
+            apiKey: "AIzaSyD6UDuCBns0_zdWOhnLOX3OtKelHs3hGmc",
+</p>
+<p>
+            authDomain: "altafawuk-center.firebaseapp.com",
+</p>
+<p>
+            databaseURL: "https://altafawuk-center-default-rtdb.firebaseio.com",
+</p>
+<p>
+            projectId: "altafawuk-center",
+</p>
+<p>
+            storageBucket: "altafawuk-center.firebasestorage.app",
+</p>
+<p>
+            messagingSenderId: "499180495752",
+</p>
+<p>
+            appId: "1:499180495752:web:6f2e72fb4e87f8becc103d"
+</p>
+<p>
+        };
+</p>
+<p>
+        firebase.initializeApp(firebaseConfig);
+</p>
+<p>
+        const database = firebase.database();
+</p>
+<p>
+        // استخراج كود الطالب من رابط الصفحة تلقائياً
+</p>
+<p>
+        const urlParams = new URLSearchParams(window.location.search);
+</p>
+<p>
+        const studentCode = urlParams.get('code');
+</p>
+<p>
+        if (studentCode) {
+</p>
+<p>
+            database.ref('students/' + studentCode).on('value', (snapshot) =&gt; {
+</p>
+<p>
+                const data = snapshot.val();
+</p>
+<p>
+                if (data) {
+</p>
+<p>
+                    document.getElementById('st-name').innerText = data.name;
+</p>
+<p>
+                    document.getElementById('st-code').innerText = data.code;
+</p>
+<p>
+                    document.getElementById('st-attendance').innerText = data.attendanceCount || 0;
+</p>
+<p>
+                    document.getElementById('st-exam').innerText = data.examScore || 'لم تحدد بعد';
+</p>
+<p>
+</p>
+<p>
+                    const statusElem = document.getElementById('st-status');
+</p>
+<p>
+                    if (data.isPaid) {
+</p>
+<p>
+                        statusElem.innerText = 'تم السداد ✅';
+</p>
+<p>
+                        statusElem.className = 'badge paid';
+</p>
+<p>
+                    } else {
+</p>
+<p>
+                        statusElem.innerText = 'لم يتم السداد ❌';
+</p>
+<p>
+                        statusElem.className = 'badge unpaid';
+</p>
+<p>
+                    }
+</p>
+<p>
+                    if (data.attendanceDates &amp;&amp; data.attendanceDates.length &gt; 0) {
+</p>
+<p>
+                        document.getElementById('st-dates').innerText = data.attendanceDates.join(' | ');
+</p>
+<p>
+                    }
+</p>
+<p>
+                } else {
+</p>
+<p>
+                    document.getElementById('student-card').innerHTML = "&lt;h3 style='color:red; text-align:center;'&gt;عفواً، بيانات هذا الطالب غير موجودة!&lt;/h3&gt;";
+</p>
+<p>
+                }
+</p>
+<p>
+            });
+</p>
+<p>
+        } else {
+</p>
+<p>
+            document.getElementById('student-card').innerHTML = "&lt;h3 style='color:red; text-align:center;'&gt;رابط غير صحيح، برجاء التأكد من الكود!&lt;/h3&gt;";
+</p>
+<p>
+        }
+</p>
+<p>
+    &lt;/script&gt;
+</p>
+<p>
+    &lt;/body&gt;
+</p>
+<p>
+    &lt;/html&gt;
+</p>
