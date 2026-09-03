@@ -3,78 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم المركز - Firebase</title>
+    <title>  مركز التفوق الذكي</title>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
+        :root { --primary: #2563eb; --success: #16a34a; --danger: #dc2626; --bg: #f8fafc; --card-bg: #ffffff; --text: #1e293b; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; }
-        h1, h2 { color: #1a73e8; text-align: center; }
-        .card { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .scan-area { background: #e8f0fe; border: 2px dashed #1a73e8; text-align: center; }
-        input[type="text"], input[type="number"] { padding: 10px; margin: 5px; border: 1px solid #ccc; border-radius: 5px; font-size: 15px; }
-        button { padding: 10px 15px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 15px; font-weight: bold; }
-        button:hover { opacity: 0.9; }
-        .btn-whatsapp { background-color: #25d366; }
-        .btn-link { background-color: #17a2b8; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #e0e0e0; padding: 12px; text-align: center; }
-        th { background-color: #1a73e8; color: white; }
-        .stats { display: flex; justify-content: space-around; font-size: 18px; font-weight: bold; background: #fff; padding: 15px; border-radius: 8px; }
-        .alert { color: green; font-weight: bold; font-size: 18px; margin-top: 10px; }
+        header { text-align: center; margin-bottom: 25px; }
+        header h1 { color: var(--primary); margin-bottom: 5px; }
+        header p { color: #64748b; font-size: 15px; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; padding: 20px; border-radius: 12px; text-align: center; }
+        .stat-card.revenue { background: linear-gradient(135deg, #10b981, #047857); }
+        .stat-card h3 { margin: 0; font-size: 15px; opacity: 0.9; }
+        .stat-card p { font-size: 24px; font-weight: bold; margin: 10px 0 0 0; }
+        .scan-area { background: #eff6ff; border: 2px dashed #3b82f6; text-align: center; padding: 25px; border-radius: 12px; }
+        .scan-area input { width: 60%; padding: 12px; font-size: 16px; border: 1px solid #cbd5e1; border-radius: 8px; text-align: center; outline: none; }
+        form input { padding: 10px; margin: 5px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; }
+        form button { padding: 10px 20px; background: var(--success); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+        th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: center; }
+        th { background-color: var(--primary); color: white; }
+        tr:nth-child(even) { background-color: #f8fafc; }
+        .btn-whatsapp { background-color: #25d366; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-link { background-color: #0ea5e9; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .alert { font-weight: bold; font-size: 16px; margin-top: 10px; min-height: 24px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>نظام إدارة السنتر الذكي</h1>
+    <header>
+        <h1>مركز التفوق التعليمي</h1>
+        <p>نظام الإدارة الشامل ومتابعة الحضور والتحصيل الدراسي</p>
+    </header>
 
-    <!-- الإحصائيات والإيرادات -->
-    <div class="card stats">
-        <div>إجمالي الطلاب: <span id="total-students">0</span></div>
-        <div>إجمالي الإيرادات المحصلة: <span id="total-revenue">0</span> ج.م</div>
+    <!-- الإحصائيات -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>إجمالي الطلاب المسجلين</h3>
+            <p id="total-students">0</p>
+        </div>
+        <div class="stat-card revenue">
+            <h3>إجمالي الإيرادات المحصلة</h3>
+            <p><span id="total-revenue">0</span> ج.م</p>
+        </div>
     </div>
 
-    <!-- مسح الباركود للتسجيل التلقائي -->
+    <!-- مسح الباركود الخطي -->
     <div class="card scan-area">
-        <h2>مسح الباركود للتسجيل السريع</h2>
-        <input type="text" id="barcode-input" placeholder="وجه الماسح هنا..." autofocus autocomplete="off">
+        <h2>تسجيل الحضور السريع بالبارسكود (1D)</h2>
+        <input type="text" id="barcode-input" placeholder="امسح كود الطالب هنا واضغط Enter..." autofocus autocomplete="off">
         <div id="scan-message" class="alert"></div>
     </div>
 
-    <!-- إضافة أو تعديل بيانات طالب -->
+    <!-- إضافة طالب جديد -->
     <div class="card">
-        <h3>إضافة / تعديل بيانات طالب</h3>
+        <h3>تسجيل طالب جديد بالسيستم</h3>
         <form id="student-form">
             <input type="text" id="student-code" placeholder="كود الطالب (فريد)" required>
-            <input type="text" id="student-name" placeholder="اسم الطالب" required>
-            <input type="text" id="student-phone" placeholder="رقم الطالب" required>
-            <input type="text" id="parent-phone" placeholder="رقم ولي الأمر" required>
+            <input type="text" id="student-name" placeholder="اسم الطالب الرباعي" required>
+            <input type="text" id="student-phone" placeholder="رقم هاتف الطالب" required>
+            <input type="text" id="parent-phone" placeholder="رقم ولي الأمر (للسهولة: 201xxxxxxxxx)" required>
             <input type="number" id="monthly-fee" placeholder="المصاريف الشهرية" value="200" required>
-            <button type="submit">حفظ البيانات في Firebase</button>
+            <button type="submit">حفظ الطالب بالسيستم</button>
         </form>
     </div>
 
     <!-- جدول إدارة الطلاب -->
     <div class="card">
-        <h3>قائمة الطلاب والبيانات الحالية</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>الكود</th>
-                    <th>الاسم</th>
-                    <th>رقم ولي الأمر</th>
-                    <th>درجة الامتحان</th>
-                    <th>مصاريف الشهر</th>
-                    <th>مرات الحضور</th>
-                    <th>الإجراءات</th>
-                </tr>
-            </thead>
-            <tbody id="students-table-body">
-                <!-- يتم تحميل البيانات هنا حياً من Firebase -->
-            </tbody>
-        </table>
+        <h3>قائمة الطلاب ومتابعة الحضور</h3>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>الكود</th>
+                        <th>اسم الطالب</th>
+                        <th>رقم ولي الأمر</th>
+                        <th>درجة الامتحان</th>
+                        <th>حالة المصاريف</th>
+                        <th>الحصص (تعديل مباشر)</th>
+                        <th>إجراءات التواصل</th>
+                    </tr>
+                </thead>
+                <tbody id="students-table-body">
+                    <!-- يتم جلب البيانات لحظياً من Firebase -->
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -97,11 +116,7 @@
     const scanMessage = document.getElementById('scan-message');
     let localStudents = {};
 
-    document.addEventListener('click', (e) => {
-        if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
-            barcodeInput.focus();
-        }
-    });
+    document.addEventListener('click', () => barcodeInput.focus());
 
     barcodeInput.addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
@@ -119,20 +134,23 @@
             const currentCount = student.attendanceCount || 0;
             const today = new Date().toLocaleDateString('ar-EG');
             const dates = student.attendanceDates || [];
-            dates.push(today);
+            
+            if(!dates.includes(today)) {
+                dates.push(today);
+            }
 
             studentsRef.child(code).update({
                 attendanceCount: currentCount + 1,
                 attendanceDates: dates
             });
 
-            scanMessage.style.color = "green";
-            scanMessage.innerText = `تم تسجيل حضور: ${student.name} بنجاح!`;
+            scanMessage.style.color = "var(--success)";
+            scanMessage.innerText = `✅ تم تسجيل حضور الطالب: ${student.name}`;
         } else {
-            scanMessage.style.color = "red";
-            scanMessage.innerText = `الكود (${code}) غير موجود بالسيستم!`;
+            scanMessage.style.color = "var(--danger)";
+            scanMessage.innerText = `❌ الكود (${code}) غير مسجل بالسيستم!`;
         }
-        setTimeout(() => { scanMessage.innerText = ''; }, 3000);
+        setTimeout(() => { scanMessage.innerText = ''; }, 4000);
     }
 
     document.getElementById('student-form').addEventListener('submit', function (e) {
@@ -158,6 +176,7 @@
         });
 
         this.reset();
+        alert('تم حفظ بيانات الطالب بنجاح!');
     });
 
     studentsRef.on('value', (snapshot) => {
@@ -174,26 +193,36 @@
         studentsRef.child(code).update({ examScore: score });
     }
 
+    function updateAttendanceManual(code, count) {
+        const val = parseInt(count) || 0;
+        studentsRef.child(code).update({ attendanceCount: val });
+    }
+
     function sendWhatsApp(code) {
         const s = localStudents[code];
         const paidStatus = s.isPaid ? "تم السداد ✅" : "لم يتم السداد ❌";
         
-        const studentPageUrl = window.location.href.replace('index.html', 'student.html') + `?code=${s.code}`;
+        // رابط دقيق يتجه مباشرة لصفحة student.html الحقيقية للموقع
+        const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+        const studentPageUrl = baseUrl + `student.html?code=${s.code}`;
 
-        const message = `تقرير الطالب: ${s.name}%0A` +
-                        `الكود: ${s.code}%0A` +
-                        `عدد حصص الحضور: ${s.attendanceCount || 0}%0A` +
-                        `درجة الامتحان: ${s.examScore}%0A` +
-                        `حالة المصاريف: ${paidStatus}%0A` +
-                        `رابط متابعة الطالب مباشرة:%0A${studentPageUrl}`;
+        const message = `مرحباً ولي أمر الطالب: ${s.name}%0A` +
+                        `إليك تقرير المتابعة من مركز التفوق:%0A` +
+                        `- كود الطالب: ${s.code}%0A` +
+                        `- إجمالي الحصص الحاضرة: ${s.attendanceCount || 0}%0A` +
+                        `- درجة الامتحان الشهري: ${s.examScore}%0A` +
+                        `- حالة المصاريف: ${paidStatus}%0A%0A` +
+                        `للاطلاع على السجل الكامل والتفاصيل، يمكنك الضغط على الرابط الآمن:%0A${studentPageUrl}`;
 
-        window.open(`https://wa.me/${s.parentPhone}?text=${message}`, '_blank');
+        // فتح واتساب مباشر برقم الهاتف المخصص لولي الأمر
+        window.open(`https://api.whatsapp.com/send?phone=${s.parentPhone}&text=${message}`, '_blank');
     }
 
     function copyLink(code) {
-        const url = window.location.href.replace('index.html', 'student.html') + `?code=${code}`;
+        const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+        const url = baseUrl + `student.html?code=${code}`;
         navigator.clipboard.writeText(url);
-        alert('تم نسخ رابط صفحة الطالب بنجاح!');
+        alert('تم نسخ رابط متابعة الطالب بنجاح!');
     }
 
     function renderTable(studentsData) {
@@ -210,19 +239,21 @@
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${s.code}</td>
+                <td><b>${s.code}</b></td>
                 <td>${s.name}</td>
                 <td>${s.parentPhone}</td>
-                <td><input type="text" value="${s.examScore}" style="width:70px;" onchange="updateScore('${s.code}', this.value)"></td>
+                <td><input type="text" value="${s.examScore}" style="width:65px; text-align:center;" onchange="updateScore('${s.code}', this.value)"></td>
                 <td>
-                    <button style="background:${s.isPaid ? '#28a745' : '#dc3545'}" onclick="togglePaid('${s.code}')">
+                    <button style="background:${s.isPaid ? 'var(--success)' : 'var(--danger)'}; color:white; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;" onclick="togglePaid('${s.code}')">
                         ${s.isPaid ? 'تم السداد' : 'لم يتم'}
                     </button>
                 </td>
-                <td>${s.attendanceCount || 0}</td>
+                <td>
+                    <input type="number" value="${s.attendanceCount || 0}" style="width:60px; text-align:center;" onchange="updateAttendanceManual('${s.code}', this.value)">
+                </td>
                 <td>
                     <button class="btn-whatsapp" onclick="sendWhatsApp('${s.code}')">واتساب 📱</button>
-                    <button class="btn-link" onclick="copyLink('${s.code}')">رابط الطالب 🔗</button>
+                    <button class="btn-link" onclick="copyLink('${s.code}')">رابط 🔗</button>
                 </td>
             `;
             tbody.appendChild(tr);
