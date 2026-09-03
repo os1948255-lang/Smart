@@ -1,623 +1,236 @@
-<p>
-    &lt;!DOCTYPE html&gt;
-</p>
-<p>
-    &lt;html lang="ar" dir="rtl"&gt;
-</p>
-<p>
-    &lt;head&gt;
-</p>
-<p>
-        &lt;meta charset="UTF-8"&gt;
-</p>
-<p>
-        &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
-</p>
-<p>
-        &lt;title&gt;لوحة تحكم المركز - Firebase&lt;/title&gt;
-</p>
-<p>
-        &lt;!-- Firebase SDKs --&gt;
-</p>
-<p>
-        &lt;script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"&gt;&lt;/script&gt;
-</p>
-<p>
-        &lt;script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"&gt;&lt;/script&gt;
-</p>
-<p>
-        &lt;style&gt;
-</p>
-<p>
-            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
-</p>
-<p>
-            .container { max-width: 1200px; margin: 0 auto; }
-</p>
-<p>
-            h1, h2 { color: #1a73e8; text-align: center; }
-</p>
-<p>
-            .card { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-</p>
-<p>
-            .scan-area { background: #e8f0fe; border: 2px dashed #1a73e8; text-align: center; }
-</p>
-<p>
-            input[type="text"], input[type="number"] { padding: 10px; margin: 5px; border: 1px solid #ccc; border-radius: 5px; font-size: 15px; }
-</p>
-<p>
-            button { padding: 10px 15px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 15px; font-weight: bold; }
-</p>
-<p>
-            button:hover { opacity: 0.9; }
-</p>
-<p>
-            .btn-whatsapp { background-color: #25d366; }
-</p>
-<p>
-            .btn-link { background-color: #17a2b8; }
-</p>
-<p>
-            table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-</p>
-<p>
-            th, td { border: 1px solid #e0e0e0; padding: 12px; text-align: center; }
-</p>
-<p>
-            th { background-color: #1a73e8; color: white; }
-</p>
-<p>
-            .stats { display: flex; justify-content: space-around; font-size: 18px; font-weight: bold; background: #fff; padding: 15px; border-radius: 8px; }
-</p>
-<p>
-            .alert { color: green; font-weight: bold; font-size: 18px; margin-top: 10px; }
-</p>
-<p>
-        &lt;/style&gt;
-</p>
-<p>
-    &lt;/head&gt;
-</p>
-<p>
-    &lt;body&gt;
-</p>
-<p>
-    &lt;div class="container"&gt;
-</p>
-<p>
-        &lt;h1&gt;نظام إدارة السنتر الذكي&lt;/h1&gt;
-</p>
-<p>
-        &lt;!-- الإحصائيات والإيرادات --&gt;
-</p>
-<p>
-        &lt;div class="card stats"&gt;
-</p>
-<p>
-            &lt;div&gt;إجمالي الطلاب: &lt;span id="total-students"&gt;0&lt;/span&gt;&lt;/div&gt;
-</p>
-<p>
-            &lt;div&gt;إجمالي الإيرادات المحصلة: &lt;span id="total-revenue"&gt;0&lt;/span&gt; ج.م&lt;/div&gt;
-</p>
-<p>
-        &lt;/div&gt;
-</p>
-<p>
-        &lt;!-- مسح الباركود للتسجيل التلقائي --&gt;
-</p>
-<p>
-        &lt;div class="card scan-area"&gt;
-</p>
-<p>
-            &lt;h2&gt;مسح الباركود للتسجيل السريع&lt;/h2&gt;
-</p>
-<p>
-            &lt;input type="text" id="barcode-input" placeholder="وجه الماسح هنا..." autofocus autocomplete="off"&gt;
-</p>
-<p>
-            &lt;div id="scan-message" class="alert"&gt;&lt;/div&gt;
-</p>
-<p>
-        &lt;/div&gt;
-</p>
-<p>
-        &lt;!-- إضافة أو تعديل بيانات طالب --&gt;
-</p>
-<p>
-        &lt;div class="card"&gt;
-</p>
-<p>
-            &lt;h3&gt;إضافة / تعديل بيانات طالب&lt;/h3&gt;
-</p>
-<p>
-            &lt;form id="student-form"&gt;
-</p>
-<p>
-                &lt;input type="text" id="student-code" placeholder="كود الطالب (فريد)" required&gt;
-</p>
-<p>
-                &lt;input type="text" id="student-name" placeholder="اسم الطالب" required&gt;
-</p>
-<p>
-                &lt;input type="text" id="student-phone" placeholder="رقم الطالب" required&gt;
-</p>
-<p>
-                &lt;input type="text" id="parent-phone" placeholder="رقم ولي الأمر" required&gt;
-</p>
-<p>
-                &lt;input type="number" id="monthly-fee" placeholder="المصاريف الشهرية" value="200" required&gt;
-</p>
-<p>
-                &lt;button type="submit"&gt;حفظ البيانات في Firebase&lt;/button&gt;
-</p>
-<p>
-            &lt;/form&gt;
-</p>
-<p>
-        &lt;/div&gt;
-</p>
-<p>
-        &lt;!-- جدول إدارة الطلاب --&gt;
-</p>
-<p>
-        &lt;div class="card"&gt;
-</p>
-<p>
-            &lt;h3&gt;قائمة الطلاب والبيانات الحالية&lt;/h3&gt;
-</p>
-<p>
-            &lt;table&gt;
-</p>
-<p>
-                &lt;thead&gt;
-</p>
-<p>
-                    &lt;tr&gt;
-</p>
-<p>
-                        &lt;th&gt;الكود&lt;/th&gt;
-</p>
-<p>
-                        &lt;th&gt;الاسم&lt;/th&gt;
-</p>
-<p>
-                        &lt;th&gt;رقم ولي الأمر&lt;/th&gt;
-</p>
-<p>
-                        &lt;th&gt;درجة الامتحان&lt;/th&gt;
-</p>
-<p>
-                        &lt;th&gt;مصاريف الشهر&lt;/th&gt;
-</p>
-<p>
-                        &lt;th&gt;مرات الحضور&lt;/th&gt;
-</p>
-<p>
-                        &lt;th&gt;الإجراءات&lt;/th&gt;
-</p>
-<p>
-                    &lt;/tr&gt;
-</p>
-<p>
-                &lt;/thead&gt;
-</p>
-<p>
-                &lt;tbody id="students-table-body"&gt;
-</p>
-<p>
-                    &lt;!-- يتم تحميل البيانات هنا حياً من Firebase --&gt;
-</p>
-<p>
-                &lt;/tbody&gt;
-</p>
-<p>
-            &lt;/table&gt;
-</p>
-<p>
-        &lt;/div&gt;
-</p>
-<p>
-    &lt;/div&gt;
-</p>
-<p>
-    &lt;script&gt;
-</p>
-<p>
-        // إعدادات Firebase الخاصة بمركز التفوق (تم ربطها بنجاح)
-</p>
-<p>
-        const firebaseConfig = {
-</p>
-<p>
-            apiKey: "AIzaSyD6UDuCBns0_zdWOhnLOX3OtKelHs3hGmc",
-</p>
-<p>
-            authDomain: "altafawuk-center.firebaseapp.com",
-</p>
-<p>
-            databaseURL: "https://altafawuk-center-default-rtdb.firebaseio.com",
-</p>
-<p>
-            projectId: "altafawuk-center",
-</p>
-<p>
-            storageBucket: "altafawuk-center.firebasestorage.app",
-</p>
-<p>
-            messagingSenderId: "499180495752",
-</p>
-<p>
-            appId: "1:499180495752:web:6f2e72fb4e87f8becc103d"
-</p>
-<p>
-        };
-</p>
-<p>
-        firebase.initializeApp(firebaseConfig);
-</p>
-<p>
-        const database = firebase.database();
-</p>
-<p>
-        const studentsRef = database.ref('students');
-</p>
-<p>
-        const barcodeInput = document.getElementById('barcode-input');
-</p>
-<p>
-        const scanMessage = document.getElementById('scan-message');
-</p>
-<p>
-        let localStudents = {};
-</p>
-<p>
-        document.addEventListener('click', (e) =&gt; {
-</p>
-<p>
-            if(e.target.tagName !== 'INPUT' &amp;&amp; e.target.tagName !== 'BUTTON') {
-</p>
-<p>
-                barcodeInput.focus();
-</p>
-<p>
-            }
-</p>
-<p>
-        });
-</p>
-<p>
-        barcodeInput.addEventListener('keypress', function (e) {
-</p>
-<p>
-            if (e.key === 'Enter') {
-</p>
-<p>
-                const code = barcodeInput.value.trim();
-</p>
-<p>
-                if (code) {
-</p>
-<p>
-                    registerAttendance(code);
-</p>
-<p>
-                    barcodeInput.value = '';
-</p>
-<p>
-                }
-</p>
-<p>
-            }
-</p>
-<p>
-        });
-</p>
-<p>
-        function registerAttendance(code) {
-</p>
-<p>
-            if (localStudents[code]) {
-</p>
-<p>
-                const student = localStudents[code];
-</p>
-<p>
-                const currentCount = student.attendanceCount || 0;
-</p>
-<p>
-                const today = new Date().toLocaleDateString('ar-EG');
-</p>
-<p>
-                const dates = student.attendanceDates || [];
-</p>
-<p>
-                dates.push(today);
-</p>
-<p>
-                studentsRef.child(code).update({
-</p>
-<p>
-                    attendanceCount: currentCount + 1,
-</p>
-<p>
-                    attendanceDates: dates
-</p>
-<p>
-                });
-</p>
-<p>
-                scanMessage.style.color = "green";
-</p>
-<p>
-                scanMessage.innerText = `تم تسجيل حضور: ${student.name} بنجاح!`;
-</p>
-<p>
-            } else {
-</p>
-<p>
-                scanMessage.style.color = "red";
-</p>
-<p>
-                scanMessage.innerText = `الكود (${code}) غير موجود بالسيستم!`;
-</p>
-<p>
-            }
-</p>
-<p>
-            setTimeout(() =&gt; { scanMessage.innerText = ''; }, 3000);
-</p>
-<p>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم المركز - Firebase</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1, h2 { color: #1a73e8; text-align: center; }
+        .card { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .scan-area { background: #e8f0fe; border: 2px dashed #1a73e8; text-align: center; }
+        input[type="text"], input[type="number"] { padding: 10px; margin: 5px; border: 1px solid #ccc; border-radius: 5px; font-size: 15px; }
+        button { padding: 10px 15px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 15px; font-weight: bold; }
+        button:hover { opacity: 0.9; }
+        .btn-whatsapp { background-color: #25d366; }
+        .btn-link { background-color: #17a2b8; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #e0e0e0; padding: 12px; text-align: center; }
+        th { background-color: #1a73e8; color: white; }
+        .stats { display: flex; justify-content: space-around; font-size: 18px; font-weight: bold; background: #fff; padding: 15px; border-radius: 8px; }
+        .alert { color: green; font-weight: bold; font-size: 18px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>نظام إدارة السنتر الذكي</h1>
+
+    <!-- الإحصائيات والإيرادات -->
+    <div class="card stats">
+        <div>إجمالي الطلاب: <span id="total-students">0</span></div>
+        <div>إجمالي الإيرادات المحصلة: <span id="total-revenue">0</span> ج.م</div>
+    </div>
+
+    <!-- مسح الباركود للتسجيل التلقائي -->
+    <div class="card scan-area">
+        <h2>مسح الباركود للتسجيل السريع</h2>
+        <input type="text" id="barcode-input" placeholder="وجه الماسح هنا..." autofocus autocomplete="off">
+        <div id="scan-message" class="alert"></div>
+    </div>
+
+    <!-- إضافة أو تعديل بيانات طالب -->
+    <div class="card">
+        <h3>إضافة / تعديل بيانات طالب</h3>
+        <form id="student-form">
+            <input type="text" id="student-code" placeholder="كود الطالب (فريد)" required>
+            <input type="text" id="student-name" placeholder="اسم الطالب" required>
+            <input type="text" id="student-phone" placeholder="رقم الطالب" required>
+            <input type="text" id="parent-phone" placeholder="رقم ولي الأمر" required>
+            <input type="number" id="monthly-fee" placeholder="المصاريف الشهرية" value="200" required>
+            <button type="submit">حفظ البيانات في Firebase</button>
+        </form>
+    </div>
+
+    <!-- جدول إدارة الطلاب -->
+    <div class="card">
+        <h3>قائمة الطلاب والبيانات الحالية</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>الكود</th>
+                    <th>الاسم</th>
+                    <th>رقم ولي الأمر</th>
+                    <th>درجة الامتحان</th>
+                    <th>مصاريف الشهر</th>
+                    <th>مرات الحضور</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody id="students-table-body">
+                <!-- يتم تحميل البيانات هنا حياً من Firebase -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyD6UDuCBns0_zdWOhnLOX3OtKelHs3hGmc",
+        authDomain: "altafawuk-center.firebaseapp.com",
+        databaseURL: "https://altafawuk-center-default-rtdb.firebaseio.com",
+        projectId: "altafawuk-center",
+        storageBucket: "altafawuk-center.firebasestorage.app",
+        messagingSenderId: "499180495752",
+        appId: "1:499180495752:web:6f2e72fb4e87f8becc103d"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const studentsRef = database.ref('students');
+
+    const barcodeInput = document.getElementById('barcode-input');
+    const scanMessage = document.getElementById('scan-message');
+    let localStudents = {};
+
+    document.addEventListener('click', (e) => {
+        if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
+            barcodeInput.focus();
         }
-</p>
-<p>
-        document.getElementById('student-form').addEventListener('submit', function (e) {
-</p>
-<p>
-            e.preventDefault();
-</p>
-<p>
-            const code = document.getElementById('student-code').value.trim();
-</p>
-<p>
-            const name = document.getElementById('student-name').value.trim();
-</p>
-<p>
-            const phone = document.getElementById('student-phone').value.trim();
-</p>
-<p>
-            const parentPhone = document.getElementById('parent-phone').value.trim();
-</p>
-<p>
-            const fee = parseFloat(document.getElementById('monthly-fee').value);
-</p>
-<p>
-            const existing = localStudents[code] || {};
-</p>
-<p>
-            studentsRef.child(code).set({
-</p>
-<p>
-                code: code,
-</p>
-<p>
-                name: name,
-</p>
-<p>
-                phone: phone,
-</p>
-<p>
-                parentPhone: parentPhone,
-</p>
-<p>
-                fee: fee,
-</p>
-<p>
-                isPaid: existing.isPaid || false,
-</p>
-<p>
-                examScore: existing.examScore || 'لم تحدد',
-</p>
-<p>
-                attendanceCount: existing.attendanceCount || 0,
-</p>
-<p>
-                attendanceDates: existing.attendanceDates || []
-</p>
-<p>
+    });
+
+    barcodeInput.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            const code = barcodeInput.value.trim();
+            if (code) {
+                registerAttendance(code);
+                barcodeInput.value = '';
+            }
+        }
+    });
+
+    function registerAttendance(code) {
+        if (localStudents[code]) {
+            const student = localStudents[code];
+            const currentCount = student.attendanceCount || 0;
+            const today = new Date().toLocaleDateString('ar-EG');
+            const dates = student.attendanceDates || [];
+            dates.push(today);
+
+            studentsRef.child(code).update({
+                attendanceCount: currentCount + 1,
+                attendanceDates: dates
             });
-</p>
-<p>
-            this.reset();
-</p>
-<p>
+
+            scanMessage.style.color = "green";
+            scanMessage.innerText = `تم تسجيل حضور: ${student.name} بنجاح!`;
+        } else {
+            scanMessage.style.color = "red";
+            scanMessage.innerText = `الكود (${code}) غير موجود بالسيستم!`;
+        }
+        setTimeout(() => { scanMessage.innerText = ''; }, 3000);
+    }
+
+    document.getElementById('student-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const code = document.getElementById('student-code').value.trim();
+        const name = document.getElementById('student-name').value.trim();
+        const phone = document.getElementById('student-phone').value.trim();
+        const parentPhone = document.getElementById('parent-phone').value.trim();
+        const fee = parseFloat(document.getElementById('monthly-fee').value);
+
+        const existing = localStudents[code] || {};
+
+        studentsRef.child(code).set({
+            code: code,
+            name: name,
+            phone: phone,
+            parentPhone: parentPhone,
+            fee: fee,
+            isPaid: existing.isPaid || false,
+            examScore: existing.examScore || 'لم تحدد',
+            attendanceCount: existing.attendanceCount || 0,
+            attendanceDates: existing.attendanceDates || []
         });
-</p>
-<p>
-        studentsRef.on('value', (snapshot) =&gt; {
-</p>
-<p>
-            localStudents = snapshot.val() || {};
-</p>
-<p>
-            renderTable(localStudents);
-</p>
-<p>
-        });
-</p>
-<p>
-        function togglePaid(code) {
-</p>
-<p>
-            const currentPaid = localStudents[code].isPaid;
-</p>
-<p>
-            studentsRef.child(code).update({ isPaid: !currentPaid });
-</p>
-<p>
+
+        this.reset();
+    });
+
+    studentsRef.on('value', (snapshot) => {
+        localStudents = snapshot.val() || {};
+        renderTable(localStudents);
+    });
+
+    function togglePaid(code) {
+        const currentPaid = localStudents[code].isPaid;
+        studentsRef.child(code).update({ isPaid: !currentPaid });
+    }
+
+    function updateScore(code, score) {
+        studentsRef.child(code).update({ examScore: score });
+    }
+
+    function sendWhatsApp(code) {
+        const s = localStudents[code];
+        const paidStatus = s.isPaid ? "تم السداد ✅" : "لم يتم السداد ❌";
+        
+        const studentPageUrl = window.location.href.replace('index.html', 'student.html') + `?code=${s.code}`;
+
+        const message = `تقرير الطالب: ${s.name}%0A` +
+                        `الكود: ${s.code}%0A` +
+                        `عدد حصص الحضور: ${s.attendanceCount || 0}%0A` +
+                        `درجة الامتحان: ${s.examScore}%0A` +
+                        `حالة المصاريف: ${paidStatus}%0A` +
+                        `رابط متابعة الطالب مباشرة:%0A${studentPageUrl}`;
+
+        window.open(`https://wa.me/${s.parentPhone}?text=${message}`, '_blank');
+    }
+
+    function copyLink(code) {
+        const url = window.location.href.replace('index.html', 'student.html') + `?code=${code}`;
+        navigator.clipboard.writeText(url);
+        alert('تم نسخ رابط صفحة الطالب بنجاح!');
+    }
+
+    function renderTable(studentsData) {
+        const tbody = document.getElementById('students-table-body');
+        tbody.innerHTML = '';
+
+        let count = 0;
+        let revenue = 0;
+
+        for (let code in studentsData) {
+            count++;
+            const s = studentsData[code];
+            if (s.isPaid) revenue += (s.fee || 0);
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${s.code}</td>
+                <td>${s.name}</td>
+                <td>${s.parentPhone}</td>
+                <td><input type="text" value="${s.examScore}" style="width:70px;" onchange="updateScore('${s.code}', this.value)"></td>
+                <td>
+                    <button style="background:${s.isPaid ? '#28a745' : '#dc3545'}" onclick="togglePaid('${s.code}')">
+                        ${s.isPaid ? 'تم السداد' : 'لم يتم'}
+                    </button>
+                </td>
+                <td>${s.attendanceCount || 0}</td>
+                <td>
+                    <button class="btn-whatsapp" onclick="sendWhatsApp('${s.code}')">واتساب 📱</button>
+                    <button class="btn-link" onclick="copyLink('${s.code}')">رابط الطالب 🔗</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
         }
-</p>
-<p>
-        function updateScore(code, score) {
-</p>
-<p>
-            studentsRef.child(code).update({ examScore: score });
-</p>
-<p>
-        }
-</p>
-<p>
-        function sendWhatsApp(code) {
-</p>
-<p>
-            const s = localStudents[code];
-</p>
-<p>
-            const paidStatus = s.isPaid ? "تم السداد ✅" : "لم يتم السداد ❌";
-</p>
-<p>
-</p>
-<p>
-            const studentPageUrl = window.location.href.replace('index.html', 'student.html') + `?code=${s.code}`;
-</p>
-<p>
-            const message = `تقرير الطالب: ${s.name}%0A` +
-</p>
-<p>
-                            `الكود: ${s.code}%0A` +
-</p>
-<p>
-                            `عدد حصص الحضور: ${s.attendanceCount || 0}%0A` +
-</p>
-<p>
-                            `درجة الامتحان: ${s.examScore}%0A` +
-</p>
-<p>
-                            `حالة المصاريف: ${paidStatus}%0A` +
-</p>
-<p>
-                            `رابط متابعة الطالب مباشرة:%0A${studentPageUrl}`;
-</p>
-<p>
-            window.open(`https://wa.me/${s.parentPhone}?text=${message}`, '_blank');
-</p>
-<p>
-        }
-</p>
-<p>
-        function copyLink(code) {
-</p>
-<p>
-            const url = window.location.href.replace('index.html', 'student.html') + `?code=${code}`;
-</p>
-<p>
-            navigator.clipboard.writeText(url);
-</p>
-<p>
-            alert('تم نسخ رابط صفحة الطالب بنجاح!');
-</p>
-<p>
-        }
-</p>
-<p>
-        function renderTable(studentsData) {
-</p>
-<p>
-            const tbody = document.getElementById('students-table-body');
-</p>
-<p>
-            tbody.innerHTML = '';
-</p>
-<p>
-            let count = 0;
-</p>
-<p>
-            let revenue = 0;
-</p>
-<p>
-            for (let code in studentsData) {
-</p>
-<p>
-                count++;
-</p>
-<p>
-                const s = studentsData[code];
-</p>
-<p>
-                if (s.isPaid) revenue += (s.fee || 0);
-</p>
-<p>
-                const tr = document.createElement('tr');
-</p>
-<p>
-                tr.innerHTML = `
-</p>
-<p>
-                    &lt;td&gt;${s.code}&lt;/td&gt;
-</p>
-<p>
-                    &lt;td&gt;${s.name}&lt;/td&gt;
-</p>
-<p>
-                    &lt;td&gt;${s.parentPhone}&lt;/td&gt;
-</p>
-<p>
-                    &lt;td&gt;&lt;input type="text" value="${s.examScore}" style="width:70px;" onchange="updateScore('${s.code}', this.value)"&gt;&lt;/td&gt;
-</p>
-<p>
-                    &lt;td&gt;
-</p>
-<p>
-                        &lt;button style="background:${s.isPaid ? '#28a745' : '#dc3545'}" onclick="togglePaid('${s.code}')"&gt;
-</p>
-<p>
-                            ${s.isPaid ? 'تم السداد' : 'لم يتم'}
-</p>
-<p>
-                        &lt;/button&gt;
-</p>
-<p>
-                    &lt;/td&gt;
-</p>
-<p>
-                    &lt;td&gt;${s.attendanceCount || 0}&lt;/td&gt;
-</p>
-<p>
-                    &lt;td&gt;
-</p>
-<p>
-                        &lt;button class="btn-whatsapp" onclick="sendWhatsApp('${s.code}')"&gt;واتساب 📱&lt;/button&gt;
-</p>
-<p>
-                        &lt;button class="btn-link" onclick="copyLink('${s.code}')"&gt;رابط الطالب 🔗&lt;/button&gt;
-</p>
-<p>
-                    &lt;/td&gt;
-</p>
-<p>
-                `;
-</p>
-<p>
-                tbody.appendChild(tr);
-</p>
-<p>
-            }
-</p>
-<p>
-            document.getElementById('total-students').innerText = count;
-</p>
-<p>
-            document.getElementById('total-revenue').innerText = revenue;
-</p>
-<p>
-        }
-</p>
-<p>
-    &lt;/script&gt;
-</p>
-<p>
-    &lt;/body&gt;
-</p>
-<p>
-    &lt;/html&gt;
-</p>
+
+        document.getElementById('total-students').innerText = count;
+        document.getElementById('total-revenue').innerText = revenue;
+    }
+</script>
+</body>
+</html>
